@@ -1,0 +1,215 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2014-03-12T21:29:10+08:00
+
+====== Git ======
+Created 星期三 12 三月 2014
+
+===== 什么是Git =====
+	Git是拿来控制版本的，版本控制即VCS（Version Control System）
+	版本控制最初是linux之父拿来管理复杂的linux内核版本的
+	
+
+
+===== 版本控制的分类： =====
+	本地版本控制：容易与备份混淆
+	集中的版本控制：所有用户都将代码提交到一台服务器，服务器挂了大家全傻眼
+	分布式版本控制：每个用户都有一个项目的完整拷贝，可以通过fetch pull与服务器同步，便于协同工作
+
+	git的特点：每次加入stage are和git directroy的都是整个文件快照而非变化;每个文件都用一个校验和的哈希值来唯一标志
+
+
+===== Git文件的三种状态： =====
+	modified：修改未暂存，与未使用git一样
+	staged：缓存未提交，下次提交时会进入本地git数据库
+	committed：已提交，该文件已在git数据库中备份
+
+	在项目中使用git后，出现三个目录：
+		工作目录（working dictionary）：原来的目录
+		暂存目录（stage area）：.git目录中，用于暂存的区域,存储staged文件
+		本地仓库（git directory）：即.git目录，committed文件存储于该目录
+
+
+===== Git安装 =====
+	在Ubuntu为代表的Debian体系上直接使用如下命令:
+	sudo apt-get install git-core
+
+
+===== 使用前的配置(git config)： =====
+	1、配置文件
+	/etc/gitconfig文件	通过git config --system配置
+	~/.gitconfig文件	通过git config --global配置
+	2、用户信息
+	git config --global user.name "leo"
+	git config --global user.email alexlee5670@gmail.com
+	3、指定编译器
+	git config --global core.editor vim
+	4、差异分析器(处理文件冲突)
+	git config --global merge.tool vimdiff
+	5、查看配置信息
+	git config --list	//git config -l
+
+	如何获取帮助：
+	git help config
+
+
+===== git本地操作 =====
+	
+创建git
+	==== 1、在工作目录中建立git仓库 ====
+	git init	//出现.git文件即是git仓库
+	
+	
+	==== 2、从远程git仓库克隆项目 ====
+	git clone http://github.com/leowww24/try.git 
+	默认存储于新创件的try文件中，后面加目录名指定存储目录
+	git clone http://github.com/leowww24/try.git mydir
+	
+跟踪文件（加入缓存区域）
+	==== 将工作目录中的文件加入缓存目录 ====
+	git add file_name
+	git add *.txt	//加入所有.txt结尾文件，包含子目录中的
+	git add '*.txt' //只针对当前目录，不包含子目录
+
+提交缓存区域到git仓库
+	==== 将缓存目录中的文件加入本地git仓库 ====
+	git commit -m 'initial version'  //-m ' ' 加入简单说明
+	直接提交：
+	git commit	//会进入指定的文本编辑器，要求增加说明
+	
+	==== 跳过缓存目录，直接提交之前跟踪过的文件==== 
+	//跳过缓存目录直接将之前通过add跟踪过的文件提交到git仓库,避免了重复的add
+	git commit -a -m '2ed version'
+
+	====修改最后一次提交（--mand）====
+	git add forgotten_file	//修改最后一次提交，增加内容
+	git commit --amend	//进入文本编辑器修改注释内容
+	git commit --amend -m 'add forgotten_flle'
+
+	
+检查文件状态 
+	git status
+	git checkout  //宏观查看当前git状态
+
+	通过创建.gitignore文件（与.git文件平级，自己添加）指定忽略文件，避免git管理不必要的文件,支持glob模式（shell简化的正则表达式）
+	#注释 指定被git忽略的文件
+	*.[oa]  #忽略所有.o .a结尾的文件
+	!lib.a  #不忽略lib.a
+	*~
+	[[/Todo]] #忽略.git 目录下的Todo文件
+	build/   #忽略build中所有文件
+	
+查看提交历史
+	git log
+	git log -p -2	//显示最近两次提交历史，-p表示显示文件差异
+
+查看文件变化
+	==== 查看**工作目录较缓存目录**中文件内容变化 ====
+	git diff
+
+	查看**缓存目录较git仓库**中文件内容变化
+	git diff --staged  或(--cashed)
+	
+	git diff HEAD	//使用HEAD指针查看最近一次提交后的变化
+
+取消跟踪、撤出git仓库、还原文件
+	//从跟踪目录移除文件，被移除的文件将在工作目录中，不被git管理
+	git rm file_name
+	git rm '*.txt'	//移除当前跟踪目录中所有.txt结尾文件
+	
+	//从git仓库中移除某个文件，变为为跟踪状态，但不删除该文件（误将一些无用文件提交之后可以使用）
+	git rm --cached file_name
+
+	取消暂存的文件，add的逆向操作
+	git reset file_name
+
+	取消对文件的修改，从缓存目录还原到工作目录
+	git checkout -- file_name	//注意： --与文件名中间有个空格
+
+在git中重命名文件
+	git mv old new 
+	//等效于mv old new;  git rm old;  git add new
+
+
+===== 关于远程库 =====
+
+	==== 查看当前远程库 ====
+	git remote		//默认远程目录名为origin
+	git remote -v	//显示对应的远程地址
+
+
+	==== 添加远程仓库,同时指定目录简称（默认远程库使用origin） ====
+	git remote add [shortname] [url]
+	
+
+	
+	==== 从远程库中抓取数据 ====
+	git fetch [remote-name] //不会自动merge
+	git pull origin master  //相当与fetch之后再merge
+
+	
+	==== 推送数据到远程仓库 ====
+	git push [remote-name] [branch-name]
+	git push origin master	//远程仓库名称默认origin 本地仓库名称默认为master
+	git push -u origin master	//-u使git记住当前参数，下次可以直接git push
+
+	
+	==== 查看远程仓库信息 ====
+	git remote show origin	
+
+	
+	==== 远程仓库从命名与删除 ====
+	git remote rename origin new_name
+	git remote rm origin
+
+	
+	==== 查看远程仓库教本次仓库的区别 ====
+	git diff [local_branch_name] [remote_branch_name]
+	git diff master origin/master
+
+
+关于标签(保存提交对象和校验和信息的文件)
+	git tag			//列出所有标签
+	git tag -l 'v1.4.*'  //查看v1.4.开头的标签
+	git tag v1.4	//创建轻量级标签
+	git tag  -a v1.4 -m 'my version 1.4'	//创建带注释的标签
+	git show v1.4  	 //显示某标签信息
+	
+
+
+===== 分支的概念 =====
+	分支用于从开发主线分离出来，不影响主线同时继续工作
+
+	
+	==== 查看分支： ====
+	git branch	//有一个Head指针指向的是当前工作的分支
+	git branck -v	//查看各分支最后一次提交的注释信息
+
+	
+	==== 创建分支： ====
+	git branch new_branck_name
+
+	
+	==== 切换分支： ====
+	git checkout branch_name
+	
+	创建并切换分支(等同于上面两条命令)：
+	git checkout -b new_branck_name
+
+	
+	==== 合并分支： ====
+	git merge other_branch_name		//将当前分支与另一个分支合并
+
+	
+	==== 移除分支： ====
+	git branch -d branch_name	//使用-d 移除无用的分支
+
+
+
+
+
+===== 原文： =====
+https://git-scm.com/book/zh
+推荐教程Code School：
+https://try.github.io/levels/1/challenges/1
+
