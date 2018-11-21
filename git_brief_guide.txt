@@ -187,7 +187,7 @@ Created 星期三 12 三月 2014
 
 	
 	==== 创建分支： ====
-	git branch new_branck_name
+	git branch new_branch_name
 
 	
 	==== 切换分支： ====
